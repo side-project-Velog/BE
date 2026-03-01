@@ -10,6 +10,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import velog.velog.domain.auth.dto.AuthDto;
 import velog.velog.domain.auth.dto.EmailPurpose;
+import velog.velog.system.exception.model.ErrorCode;
+import velog.velog.system.exception.model.RestException;
 
 import java.security.SecureRandom;
 import java.time.Duration;
@@ -53,12 +55,19 @@ public class EmailService {
         String key = "EMAIL_CODE:" + request.getPurpose().name() + ":" + email;
         String savedCode = redisTemplate.opsForValue().get(key);
 
+        // 1. 코드가 없거나 만료
         if(savedCode == null || !savedCode.equals(request.getCode())) {
-            throw new RuntimeException("인증번호가 일치하지 않거나 만료되었습니다.");
+            throw new RestException(ErrorCode.AUTH_EMAIL_CODE_INVALID);
         }
 
-        redisTemplate.delete(key);
+        // 2. 코드가 일치하지 않는 경우
+        if (!savedCode.equals(request.getCode())) {
+            throw new RestException(ErrorCode.AUTH_EMAIL_CODE_NOT_MATCHED);
+        }
+
         // 인증 완료
         redisTemplate.opsForValue().set("EMAIL_VERIFIED:" + request.getPurpose().name() + ":" + email, "TRUE", Duration.ofMinutes(10));
+
+        redisTemplate.delete(key);
     }
 }

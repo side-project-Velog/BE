@@ -26,6 +26,12 @@ public enum ErrorCode {
     AUTH_EMAIL_NOT_VERIFIED(HttpStatus.UNAUTHORIZED, "AUTH_EMAIL_NOT_VERIFIED", "이메일 인증이 완료되지 않았습니다."),
     AUTH_EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "AUTH_EMAIL_ALREADY_EXISTS", "이미 사용 중인 이메일입니다."),
 
+    // MAIL
+    MAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "MAIL_SEND_FAILED", "이메일 전송에 실패했습니다."),
+    MAIL_TEMPLATE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "MAIL_TEMPLATE_ERROR", "메일 템플릿 처리 중 오류가 발생했습니다."),
+    AUTH_EMAIL_CODE_INVALID(HttpStatus.BAD_REQUEST, "AUTH_EMAIL_CODE_INVALID", "인증 코드가 만료되었거나 올바르지 않습니다."),
+    AUTH_EMAIL_CODE_NOT_MATCHED(HttpStatus.BAD_REQUEST, "AUTH_EMAIL_CODE_NOT_MATCHED", "인증 코드가 일치하지 않습니다."),
+
     // DB
     DB_DATA_TOO_LONG(HttpStatus.BAD_REQUEST, "DB_DATA_TOO_LONG", "데이터 길이가 너무 깁니다."),
     DB_NOT_NULL_VIOLATION(HttpStatus.BAD_REQUEST, "DB_NOT_NULL_VIOLATION", "필수 항목이 누락되었습니다."),
