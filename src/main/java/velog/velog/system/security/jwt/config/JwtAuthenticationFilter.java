@@ -12,7 +12,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import tools.jackson.databind.ObjectMapper;
+import velog.velog.system.exception.dto.ErrorResponse;
+import velog.velog.system.exception.model.ErrorCode;
+import velog.velog.system.security.jwt.exception.JwtBlacklistException;
+import velog.velog.system.security.jwt.exception.JwtRestException;
 import velog.velog.system.security.jwt.util.JwtTokenProvider;
+import velog.velog.system.security.util.CookieUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,47 +29,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final StringRedisTemplate redisTemplate;
+    private final CookieUtils cookieUtils;
+    private final ObjectMapper objectMapper;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)  throws ServletException, IOException {
-        // 1. Request Header에서 토큰 추출
-        String token = resolveToken(request);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        try {
+            // 1. 쿠키에서 ATK 추출
+            String token = cookieUtils.getAccessTokenFromRequest(request);
 
-        // 2. 토큰 유효성
-        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
-            // 블랙리스트 확인 로직
-            String isLogout = redisTemplate.opsForValue().get("BLACKLIST_ATK:" + token);
+            if (token != null && jwtTokenProvider.validateToken(token)) {
+                // 2. Redis 블랙리스트 체크
+                Boolean isBlacklisted = redisTemplate.hasKey("BLACKLIST_ATK:" + token);
+                if (isBlacklisted != null && isBlacklisted) {
+                    throw new JwtBlacklistException(); // 블랙리스트 발견 시 예외 발생
+                }
 
-            if (isLogout != null) {
-                log.warn("🚫 로그아웃된 토큰(Blacklist)으로 접근 시도: {}", token);
-                // 블랙리스트라면 SecurityContext에 등록하지 않고 바로 다음 필터로
-                filterChain.doFilter(request, response);
-                return;
+                Authentication auth = jwtTokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }
+            filterChain.doFilter(request, response);
 
-            // 2. 정상 토큰일 경우 인증 정보 세팅
-            Authentication authentication = jwtTokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.debug("🟢 SecurityContext에 인증 정보 저장: {}", authentication.getName());
+        } catch (JwtRestException e) {
+            sendErrorResponse(response, e.getErrorCode());
         }
-        filterChain.doFilter(request, response);
     }
 
-    private String resolveToken(HttpServletRequest request) {
-        // 1. header 확인
-        String bearerToken = request.getHeader("Authorization");
-        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
+    private void sendErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
+        response.setStatus(errorCode.getStatus().value());
+        response.setContentType("application/json;charset=UTF-8");
 
-        // 2. Cookie 확인
-        if(request.getCookies() != null) {
-            return Arrays.stream(request.getCookies())
-                    .filter(c -> "accessToken".equals(c.getName()))
-                    .map(Cookie::getValue)
-                    .findFirst()
-                    .orElse(null);
-        }
-        return null;
+        ErrorResponse errorBody = ErrorResponse.builder()
+                .status(errorCode.getStatus().value())
+                .error(errorCode.getError())
+                .message(errorCode.getMessage())
+                .build();
+
+        response.getWriter().write(objectMapper.writeValueAsString(errorBody));
     }
 }

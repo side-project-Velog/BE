@@ -10,6 +10,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import velog.velog.system.security.jwt.exception.JwtExpiredException;
+import velog.velog.system.security.jwt.exception.JwtInvalidException;
+import velog.velog.system.security.jwt.exception.JwtMissingException;
+import velog.velog.system.security.model.UserPrincipal;
 
 import java.security.Key;
 import java.util.Collections;
@@ -68,10 +72,8 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String token) {
         String email = this.getEmail(token);
 
-        UserDetails userDetails = User.builder()
+        UserDetails userDetails = UserPrincipal.builder()
                 .username(email)
-                .password("")
-                .roles("USER")
                 .build();
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
@@ -84,14 +86,17 @@ public class JwtTokenProvider {
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.info("잘못된 JWT 서명입니다.");
+            throw new JwtInvalidException();
         } catch (ExpiredJwtException e) {
             log.info("만료된 JWT 토큰입니다.");
+            throw new JwtExpiredException();
         } catch (UnsupportedJwtException e) {
             log.info("지원되지 않는 JWT 토큰입니다.");
+            throw new JwtInvalidException();
         } catch (IllegalArgumentException e) {
             log.info("JWT 토큰이 잘못되었습니다.");
+            throw new JwtMissingException();
         }
-        return false;
     }
 
     // 토큰에서 이메일 추출
