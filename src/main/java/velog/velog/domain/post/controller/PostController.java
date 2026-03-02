@@ -2,6 +2,10 @@ package velog.velog.domain.post.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,8 +31,9 @@ public class PostController {
 
     // 글 목록 조회
     @GetMapping
-    public ResponseEntity<List<PostDto.ListResponse>> getList() {
-        return ResponseEntity.ok(postService.findAll());
+    public ResponseEntity<Page<PostDto.ListResponse>> getList(
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(postService.findAll(pageable));
     }
 
     // 글 상세 조회

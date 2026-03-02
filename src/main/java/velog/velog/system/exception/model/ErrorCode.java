@@ -35,7 +35,19 @@ public enum ErrorCode {
     // DB
     DB_DATA_TOO_LONG(HttpStatus.BAD_REQUEST, "DB_DATA_TOO_LONG", "데이터 길이가 너무 깁니다."),
     DB_NOT_NULL_VIOLATION(HttpStatus.BAD_REQUEST, "DB_NOT_NULL_VIOLATION", "필수 항목이 누락되었습니다."),
-    DB_CONNECTION_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "DB_CONNECTION_FAILED", "데이터베이스 연결에 실패했습니다.");
+    DB_CONNECTION_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "DB_CONNECTION_FAILED", "데이터베이스 연결에 실패했습니다."),
+
+    // USER
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER NOT FOUND", "존재하지 않는 사용자입니다."),
+    USER_USERNAME_ALREADY_EXISTS(HttpStatus.CONFLICT, "USER USERNAME ALREADY EXISTS", "중복되는 아이디입니다."),
+    USER_EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "USER EMAIL ALREADY EXISTS", "중복되는 이메일입니다."),
+    USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "USER UNAUTHORIZED", "인증되지 않은 유저입니다."),
+
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST NOT FOUND", "존재하지 않는 게시글입니다."),
+    POST_FORBIDDEN(HttpStatus.FORBIDDEN, "POST_FORBIDDEN", "권한이 없습니다."),
+    POST_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "POST CREATION FAILED", "게시글 생성에 실패했습니다."),
+    POST_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "POST UPDATE FAILED", "게시글 수정에 실패했습니다."),
+    POST_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "POST DELETE FAILED", "게시글 삭제에 실패했습니다.");
 
     private final HttpStatus status;
     private final String error;

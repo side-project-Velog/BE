@@ -1,17 +1,17 @@
 package velog.velog.domain.post.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import velog.velog.common.auditor.TimeBaseEntity;
 import velog.velog.domain.user.entity.User;
 
 @Entity
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "posts")
+@Table(name = "posts", indexes = {
+        @Index(name = "idx_post_created_at", columnList = "created_at DESC")
+})
 public class Post extends TimeBaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +20,8 @@ public class Post extends TimeBaseEntity {
     @Column(nullable = false, length = 100)
     private String title; // 제목
 
-    @Column(nullable = false)
+    @Lob
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String content; // 내용
 
     @Column(length = 100)
@@ -49,5 +50,10 @@ public class Post extends TimeBaseEntity {
         return content.length() > 50
                 ? content.substring(0, 50) + "..."
                 : content;
+    }
+
+    @PrePersist
+    private void onCreate() {
+        this.summary = generateSummary(this.content);
     }
 }
