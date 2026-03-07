@@ -59,7 +59,7 @@ public class RedisViewService {
 
         ScanOptions options = ScanOptions.scanOptions().match(pattern).count(100).build();
 
-        try (Cursor<byte[]> cursor = redisTemplate.getConnectionFactory().getConnection().scan(options)) {
+        try (Cursor<String> cursor = redisTemplate.scan(options)) {
             while (cursor.hasNext() && viewCounts.size() < limit) {
                 String key = new String(cursor.next());
                 String value = redisTemplate.opsForValue().get(key);
@@ -82,5 +82,21 @@ public class RedisViewService {
     public void deleteViewCountKey(ViewDomain domain, Long id) {
         String key = String.format(COUNT_KEY_FORMAT, domain.getPrefix(), id);
         redisTemplate.delete(key);
+    }
+
+    /**
+     * DB 반영 후 반영된 만큼만 Redis에서 차감
+     */
+    public void decrementCount(ViewDomain domain, Long id, Long count) {
+        String key = String.format(COUNT_KEY_FORMAT, domain.getPrefix(), id);
+
+        // 반영한 수치만큼 마이너스
+        redisTemplate.opsForValue().decrement(key, count);
+
+        // 결과값이 0 이하라면 키 삭제
+        String value = redisTemplate.opsForValue().get(key);
+        if (value != null && Long.parseLong(value) <= 0) {
+            redisTemplate.delete(key);
+        }
     }
 }
