@@ -1,5 +1,6 @@
 package velog.velog.domain.post.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import velog.velog.common.util.ClientUtils;
 import velog.velog.domain.post.dto.PostDto;
 import velog.velog.domain.post.service.PostService;
 
@@ -38,8 +40,15 @@ public class PostController {
 
     // 글 상세 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<PostDto.DetailResponse> getDetail(@PathVariable(name = "postId") Long postId) {
-        return ResponseEntity.ok(postService.findById(postId));
+    public ResponseEntity<PostDto.DetailResponse> getDetail(
+            @PathVariable(name = "postId") Long postId,
+            @AuthenticationPrincipal UserDetails userDetails,
+            HttpServletRequest request) {
+
+        String email = (userDetails != null) ? userDetails.getUsername() : null;
+        String ip = ClientUtils.getClientIp(request);
+
+        return ResponseEntity.ok(postService.getDetail(postId, email, ip));
     }
 
     // 글 수정

@@ -7,6 +7,7 @@ import velog.velog.domain.user.entity.User;
 
 @Entity
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "posts", indexes = {
@@ -27,15 +28,19 @@ public class Post extends TimeBaseEntity {
     @Column(length = 100)
     private String summary; // 요약문
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Long viewCount = 0L;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Builder
     public Post(String title, String content, User user) {
         this.title = title;
         this.content = content;
         this.user = user;
+        this.viewCount = 0L;
         this.summary = generateSummary(content);
     }
 

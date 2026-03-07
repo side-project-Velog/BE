@@ -26,6 +26,7 @@ public class PostDto {
         private String title;
         private String content;
         private String authorName;
+        private Long viewCount;
         private LocalDateTime createdAt;
 
         public static DetailResponse from(Post post) {
@@ -34,6 +35,7 @@ public class PostDto {
                     .title(post.getTitle())
                     .content(post.getContent())
                     .authorName(post.getUser().getFirstName()) // 작성자 이름
+                    .viewCount(post.getViewCount())
                     .createdAt(post.getCreatedAt())
                     .build();
         }
