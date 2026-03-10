@@ -21,6 +21,7 @@ public enum ErrorCode {
     JWT_BLACKLIST(HttpStatus.UNAUTHORIZED, "JWT_BLACKLIST", "로그아웃된 토큰입니다."),
 
     // AUTH
+    AUTH_FORBIDDEN(HttpStatus.FORBIDDEN, "AUTH FORBIDDEN", "접근 권한이 없습니다."),
     AUTH_PASSWORD_NOT_MATCH(HttpStatus.UNAUTHORIZED, "AUTH_PASSWORD_NOT_MATCH", "비밀번호가 일치하지 않습니다."),
     AUTH_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "AUTH_USER_NOT_FOUND", "존재하지 않는 사용자입니다."),
     AUTH_EMAIL_NOT_VERIFIED(HttpStatus.UNAUTHORIZED, "AUTH_EMAIL_NOT_VERIFIED", "이메일 인증이 완료되지 않았습니다."),
@@ -43,11 +44,16 @@ public enum ErrorCode {
     USER_EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "USER EMAIL ALREADY EXISTS", "중복되는 이메일입니다."),
     USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "USER UNAUTHORIZED", "인증되지 않은 유저입니다."),
 
+    // POST
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST NOT FOUND", "존재하지 않는 게시글입니다."),
     POST_FORBIDDEN(HttpStatus.FORBIDDEN, "POST_FORBIDDEN", "권한이 없습니다."),
     POST_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "POST CREATION FAILED", "게시글 생성에 실패했습니다."),
     POST_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "POST UPDATE FAILED", "게시글 수정에 실패했습니다."),
-    POST_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "POST DELETE FAILED", "게시글 삭제에 실패했습니다.");
+    POST_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "POST DELETE FAILED", "게시글 삭제에 실패했습니다."),
+
+    // Comment
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMENT NOT FOUND", "존재하지 않는 댓글입니다.");
+
 
     private final HttpStatus status;
     private final String error;
