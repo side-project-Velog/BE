@@ -2,12 +2,13 @@ package velog.velog.domain.post.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import velog.velog.common.auditor.TimeBaseEntity;
 import velog.velog.domain.user.entity.User;
 
 @Entity
 @Getter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "posts", indexes = {
