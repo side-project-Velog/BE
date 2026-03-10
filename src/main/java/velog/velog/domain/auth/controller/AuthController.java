@@ -56,8 +56,8 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthDto.LoginResponse> refresh(@RequestBody String refreshToken) {
-        return ResponseEntity.ok(authService.refresh(refreshToken));
+    public ResponseEntity<AuthDto.LoginResponse> refresh(HttpServletRequest request, HttpServletResponse response) {
+        return ResponseEntity.ok(authService.refresh(request, response));
     }
 
     @GetMapping("/email-exist")
