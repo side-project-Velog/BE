@@ -71,6 +71,14 @@ public class PostService {
     }
 
     /**
+     * 글 검색(제목 + 내용 + 작성자)
+     */
+    public Page<PostDto.ListResponse> search(String keyword, Pageable pageable) {
+        return postQueryRepository.search(keyword, pageable)
+                .map(PostDto.ListResponse::from);
+    }
+
+    /**
      * 글 수정
      */
     @Transactional
