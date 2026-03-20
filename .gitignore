@@ -41,3 +41,6 @@ out/
 
 ### Docker MySQL data ###
 docker/mysql/data/
+
+### QueryDSL Generated ###
+/src/main/generated/

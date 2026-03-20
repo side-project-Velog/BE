@@ -38,6 +38,14 @@ public class PostController {
         return ResponseEntity.ok(postService.findAll(pageable));
     }
 
+    // 글 검색
+    @GetMapping("/search")
+    public ResponseEntity<Page<PostDto.ListResponse>> search(
+            @RequestParam(name = "keyword") String keyword,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(postService.search(keyword, pageable));
+    }
+
     // 글 상세 조회
     @GetMapping("/{postId}")
     public ResponseEntity<PostDto.DetailResponse> getDetail(
